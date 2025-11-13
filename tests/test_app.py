@@ -66,3 +66,26 @@ def test_delete_user(client, user):
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'User deleted!'}
+
+
+def test_update_integrity_error(client, user):
+    client.post(
+        '/users',
+        json={
+            'username': 'fausto',
+            'email': 'fausto@example.com',
+            'password': 'secret',
+        },
+    )
+
+    response = client.put(
+        f'/users/{user.id}',
+        json={
+            'username': 'fausto',
+            'email': 'bob@example.com',
+            'password': 'mynewpassword',
+        },
+    )
+
+    assert response.status_code == HTTPStatus.CONFLICT
+    assert response.json() == {'detail': 'Username or Email already exists!'}
